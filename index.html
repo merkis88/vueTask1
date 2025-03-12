@@ -1,20 +1,25 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Product App</title>
     <link rel="stylesheet" href="css/main.css">
     <script defer src="js/vue.min.js"></script>
-    <script defer src="js/main.js"></script> 
-    
+    <script defer src="js/main.js"></script>
 </head>
 <body>
     <div id="app">
-        <h1>{{ product }}</h1>
-        <p>{{ description }}</p>
+        <div class="product">
+            <div class="product-image">
+                <img :src="image" :alt="altText" />
+            </div>
+            <div class="product-info">
+                <h1>{{ product }}</h1>
+                <a :href="link">More products like this</a>
+            </div>
+        </div>
     </div>
 </body>
 </html>
