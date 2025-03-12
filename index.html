@@ -13,29 +13,33 @@
     <div id="app">
         <div class="product">
             <div class="product-image">
-                <img :src="image" :alt="altText"/>
+                <img :src="image" :alt="altText">
             </div>
+
             <div class="product-info">
                 <h1>{{ product }}</h1>
                 <p v-if="inStock">In stock</p>
                 <p v-else>Out of Stock</p>
-                
+
                 <ul>
-                    <li v-for="detail in details">{{detail}}</li>
+                    <li v-for="detail in details">{{ detail }}</li>
                 </ul>
 
                 <div v-for="variant in variants" :key="variant.variantId">
-                    <p>{{variant.variantColor}}</p>
+                    <p @mouseover="updateProduct(variant.variantImage)">
+                        {{ variant.variantColor }}
+                    </p>
                 </div>
 
-                <div>
-                    Размеры
-                    <ul> 
-                        <li v-for="size in sizes">{{size}}</li>
-                    </ul>
-                </div>
+                <button class="add-to-cart" @click="addToCart">Add to cart</button>
+                <button class="remove-from-cart" @click="removeFromCart">Remove from cart</button>
             </div>
         </div>
-     </div>
+
+        <div class="cart">
+            <p>Cart({{ cart }})</p>
+        </div>
+    </div>
+     
 </body>
 </html>
