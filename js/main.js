@@ -22,7 +22,9 @@ let app = new Vue({
     },
     methods: {
         addToCart() {
-            this.cart += 1;
+            if (this.inStock) {
+                this.cart += 1;
+            }
         },
         removeFromCart() {
             if (this.cart > 0) {
