@@ -6,38 +6,43 @@ Vue.component('product', {
         }
     },
     template: `
-        <div class="product">
-            <div class="product-image">
-                <img :src="image" :alt="altText"/>
-            </div>
-
-            <div class="product-info">
-                <h1>{{ title }}</h1>
-                <p v-if="inStock">In stock</p>
-                <p v-else>Out of Stock</p>
-                <ul>
-                    <li v-for="detail in details">{{ detail }}</li>
-                </ul>
-
-                <div 
+    <div class="product">
+     <div class="product-image">
+            <img :src="image" :alt="altText"/>
+        </div>
+ 
+        <div class="product-info">
+            <h1>{{ title }}</h1>
+            <p v-if="inStock">In stock</p>
+            <p v-else>Out of Stock</p>
+            <ul>
+                <li v-for="detail in details">{{ detail }}</li>
+            </ul>
+           <p>Shipping: {{ shipping }}</p>
+            <div
                     class="color-box"
                     v-for="(variant, index) in variants"
                     :key="variant.variantId"
                     :style="{ backgroundColor:variant.variantColor }"
-                    @mouseover="updateProduct(index)">
-                </div>
-
-                <button 
+                    @mouseover="updateProduct(index)"
+            ></div>
+           
+            <button
                     v-on:click="addToCart"
                     :disabled="!inStock"
                     :class="{ disabledButton: !inStock }">
-                    Add to cart
-                </button>
+                Add to cart
+            </button>
 
-                <p>Доставка: {{ shipping }}</p>
-            </div>
+            <button v-on:click="removeCart"
+                    :disabled="!inStock"
+                    :class="{ disabledButton: !inStock }">
+                Remove cart
+            </button>
+        
         </div>
-    `,
+    </div>
+  `,
     data() {
         return {
             product: "Socks",
@@ -58,15 +63,20 @@ Vue.component('product', {
                     variantImage: "./assets/vmSocks-blue-onWhite.jpg",
                     variantQuantity: 0
                 }
-            ]
+            ],
         }
     },
     methods: {
         addToCart() {
             this.$emit('add-to-cart', this.variants[this.selectedVariant].variantId);
         },
+
+        removeCart() {
+            this.$emit('remove-cart', this.variants[this.selectedVariant].variantId);
+        },
         updateProduct(index) {
             this.selectedVariant = index;
+            console.log(index);
         }
     },
     computed: {
@@ -77,24 +87,30 @@ Vue.component('product', {
             return this.variants[this.selectedVariant].variantImage;
         },
         inStock() {
-            return this.variants[this.selectedVariant].variantQuantity;
+            return this.variants[this.selectedVariant].variantQuantity
         },
         shipping() {
-            return this.premium ? 'Бесплатная' : 'Платная $2.99';
+            if (this.premium) {
+                return "Free";
+            } else {
+                return 2.99
+            }
         }
     }
-});
-
-let app = new Vue({
+ })
+ let app = new Vue({
     el: '#app',
     data: {
         premium: true,
-        cart: 0
+        cart: []
     },
     methods: {
         updateCart(id) {
-            this.cart += 1;
-            console.log("Добавлен товар с ID:", id);
+            this.cart.push(id);
+        },
+        removeCart(id) {
+            this.cart.pop(id);
         }
     }
-});
+ })
+ 
