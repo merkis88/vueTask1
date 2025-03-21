@@ -1,20 +1,36 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Product App</title>
-    <link rel="stylesheet" href="css/main.css">
-    <script defer src="js/vue.min.js"></script>
-    <script defer src="js/main.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Product App</title>
+  <link rel="stylesheet" href="css/main.css">
+  <script defer src="js/vue.min.js"></script>
+  <script defer src="js/main.js"></script>
 </head>
 <body>
-    <div id="app">
-        <div class="cart">
-            <p>Cart({{ cart.length }})</p>
-        </div>
-        <product :premium="premium" @add-to-cart="updateCart"></product>
+  <div id="app">
+    <div v-if="showDiscountMessage" class="discount-message">
+      <p>У вас персональная скидка! Цена на все товары уменьшена на 30%.</p>
     </div>
+    <div class="cart">
+      <p>Cart ({{ cart.length }})</p>
+      <ul>
+        <li v-for="(item, index) in cart" :key="index">
+          {{ getItemName(item) }}
+          <button @click="removeFromCart">Remove</button>
+        </li>
+      </ul>
+      <button v-if="cart.length > 0" @click="clearCart">Clear cart</button>
+    </div>
+    <product 
+      :premium="premium" 
+      :cart="cart" 
+      :isDiscountApplied="isDiscountApplied" 
+      @add-to-cart="updateCart" 
+      @remove-from-cart="removeFromCart">
+    </product>
+  </div>
 </body>
 </html>

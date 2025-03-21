@@ -1,4 +1,4 @@
-let eventBus = new Vue(); 
+let eventBus = new Vue();
 
 Vue.component('product-review', {
   template: `
@@ -13,12 +13,10 @@ Vue.component('product-review', {
         <label for="name">Name:</label>
         <input id="name" v-model="name" placeholder="name" required>
       </p>
-
       <p>
         <label for="review">Review:</label>
         <textarea id="review" v-model="review" required></textarea>
       </p>
-
       <p>
         <label for="rating">Rating:</label>
         <select id="rating" v-model.number="rating" required>
@@ -29,7 +27,6 @@ Vue.component('product-review', {
           <option>1</option>
         </select>
       </p>
-
       <p>
         <label>Would you recommend this product?</label>
         <input type="radio" id="yes" value="Yes" v-model="recommend">
@@ -37,7 +34,6 @@ Vue.component('product-review', {
         <input type="radio" id="no" value="No" v-model="recommend">
         <label for="no">No</label>
       </p>
-
       <p>
         <input type="submit" value="Submit"> 
       </p>
@@ -54,7 +50,7 @@ Vue.component('product-review', {
   },
   methods: {
     onSubmit() {
-      this.errors = []; 
+      this.errors = [];
       if (this.name && this.review && this.rating && this.recommend) {
         let productReview = {
           name: this.name,
@@ -63,7 +59,6 @@ Vue.component('product-review', {
           recommend: this.recommend
         };
         eventBus.$emit('review-submitted', productReview);
-        
         this.name = null;
         this.review = null;
         this.rating = null;
@@ -88,7 +83,6 @@ Vue.component('product-tabs', {
               @click="selectedTab = tab"
         >{{ tab }}</span>
       </ul>
-      
       <div v-show="selectedTab === 'Reviews'">
         <p v-if="!reviews.length">There are no reviews yet.</p>
         <ul>
@@ -100,15 +94,12 @@ Vue.component('product-tabs', {
           </li>
         </ul>
       </div>
-      
       <div v-show="selectedTab === 'Make a Review'">
         <product-review @review-submitted="addReview"></product-review>
       </div>
-      
       <div v-show="selectedTab === 'Shipping'">
         <p>Shipping: {{ shipping }}</p>
       </div>
-      
       <div v-show="selectedTab === 'Details'">
         <ul>
           <li v-for="detail in details">{{ detail }}</li>
@@ -133,7 +124,7 @@ Vue.component('product-tabs', {
   data() {
     return {
       tabs: ['Reviews', 'Make a Review', 'Shipping', 'Details'],
-      selectedTab: 'Reviews'  
+      selectedTab: 'Reviews'
     };
   },
   methods: {
@@ -143,9 +134,18 @@ Vue.component('product-tabs', {
   }
 });
 
+
 Vue.component('product', {
   props: {
     premium: {
+      type: Boolean,
+      required: true
+    },
+    cart: {
+      type: Array,
+      required: true
+    },
+    isDiscountApplied: {
       type: Boolean,
       required: true
     }
@@ -155,9 +155,9 @@ Vue.component('product', {
       <div class="product-image">
         <img :src="image" :alt="altText"/>
       </div>
-
       <div class="product-info">
         <h1>{{ title }}</h1>
+        <p>Цена: {{ discountedPrice }} $</p>
         <p v-if="inStock">In stock</p>
         <p v-else>Out of Stock</p>
         <ul>
@@ -171,7 +171,6 @@ Vue.component('product', {
           :style="{ backgroundColor: variant.variantColor }"
           @mouseover="updateProduct(index)"
         ></div>
-
         <button
           v-on:click="addToCart"
           :disabled="!inStock"
@@ -179,8 +178,7 @@ Vue.component('product', {
         >
           Add to cart
         </button>
-      </div>           
-      
+      </div>
       <product-tabs :reviews="reviews" :shipping="shipping" :details="details" @review-submitted="addReview"></product-tabs>
     </div>
   `,
@@ -196,13 +194,15 @@ Vue.component('product', {
           variantId: 2234,
           variantColor: 'green',
           variantImage: "./assets/vmSocks-green-onWhite.jpg",
-          variantQuantity: 10
+          variantQuantity: 10,
+          price: 10.99
         },
         {
           variantId: 2235,
           variantColor: 'blue',
           variantImage: "./assets/vmSocks-blue-onWhite.jpg",
-          variantQuantity: 0
+          variantQuantity: 10,
+          price: 10.99
         }
       ],
       reviews: []
@@ -210,7 +210,7 @@ Vue.component('product', {
   },
   methods: {
     addToCart() {
-      this.$emit('add-to-cart', this.variants[this.selectedVariant].variantId);
+      this.$emit('add-to-cart', this.variants[this.selectedVariant]);
     },
     updateProduct(index) {
       this.selectedVariant = index;
@@ -231,6 +231,10 @@ Vue.component('product', {
     },
     shipping() {
       return this.premium ? "Free" : "$2.99";
+    },
+    discountedPrice() {
+      const price = this.variants[this.selectedVariant].price;
+      return this.isDiscountApplied ? (price * 0.7).toFixed(2) : price.toFixed(2);
     }
   },
   mounted() {
@@ -240,15 +244,42 @@ Vue.component('product', {
   }
 });
 
+
 let app = new Vue({
   el: '#app',
   data: {
     premium: true,
-    cart: []
+    cart: [],
+    showAdditionalAccessories: false
   },
   methods: {
-    updateCart(id) {
-      this.cart.push(id);
+    updateCart(item) {
+      this.cart.push(item);
+      this.showAdditionalAccessories = true;
+    },
+  
+    removeFromCart(index) {
+      this.cart.splice(index, 1);
+    },
+    clearCart() {
+      this.cart = [];
+    },
+    getItemName(item) {
+      if (item.variantId) {
+        return `Socks - ${item.variantColor}`;
+      } else if (item.name) {
+        return item.name;
+      } else {
+        return 'Unknown item';
+      }
+    }
+  },
+  computed: {
+    showDiscountMessage() {
+      return this.cart.length === 0; 
+    },
+    isDiscountApplied() {
+      return this.cart.length === 0; 
     }
   }
 });
